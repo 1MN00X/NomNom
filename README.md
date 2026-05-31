@@ -1,5 +1,5 @@
 
-# 🫪 NomNom UI Library V3.1 — Titanium Edition
+# 🫪 NomNom UI Library V3.1 
 
 An ultra-sleek, modern, and highly responsive **Roblox UI Library** meticulously crafted for developers who demand high performance and aesthetics. **Titanium Edition** introduces an improved fluid kinematic intro sequence and a zero-lag lagless real-time color customizer.
 
