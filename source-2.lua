@@ -1,6 +1,6 @@
--- [[ NomNom UI Library V2: Ultra Premium Edition + MEGA UPDATE ]]
--- Fitur Asli: Draggable Window, Live Theme Changer, RGB Dynamic Island, Smooth Sliders, Ultra Animations
--- Fitur Baru: Tab System, Notifications, Progress Bar, Status Indicator, Text Box, Label, Search Bar
+-- [[ NomNom UI Library V3: Titanium Edition + Mega Update ]]
+-- Fitur Asli: Draggable, Live Theme, Dynamic Island, Smooth Sliders, Tabs, Notifs
+-- Fitur Baru: Cinematic Intro, Custom Logo, Icon/Symbol Support, Custom Color Picker, Auto-Notify, Titanium Purple Theme
 
 local NomNom = {}
 NomNom.__index = NomNom
@@ -16,10 +16,7 @@ local Players = game:GetService("Players")
 
 -- Global Dragging Logic
 local function MakeDraggable(topbarobject, object)
-    local Dragging = nil
-    local DragInput = nil
-    local DragStart = nil
-    local StartPosition = nil
+    local Dragging, DragInput, DragStart, StartPosition
 
     local function Update(input)
         local Delta = input.Position - DragStart
@@ -58,15 +55,15 @@ end
 function NomNom.new(config)
     local self = setmetatable({}, NomNom)
     
-    -- Konfigurasi Utama
+    -- Konfigurasi Utama (Titanium Purple & Black Default)
     self.Title = config.Title or "NomNom Premium"
     self.LogoId = config.LogoId or ""
-    self.CurrentThemeColor = config.ThemeColor or Color3.fromRGB(0, 170, 255)
+    self.CurrentThemeColor = config.ThemeColor or Color3.fromRGB(150, 100, 255) -- Titanium Purple
     self.ThemeObjects = {} 
     
     -- Inisialisasi ScreenGui
     local sgui = Instance.new("ScreenGui")
-    sgui.Name = "NomNom_V2_Premium"
+    sgui.Name = "NomNom_V3_Titanium"
     sgui.ResetOnSpawn = false
     sgui.Parent = CoreGui or Players.LocalPlayer:WaitForChild("PlayerGui")
     self.ScreenGui = sgui
@@ -85,86 +82,70 @@ function NomNom.new(config)
     self.NotifContainer = notifContainer
     
     -- ==========================================
-    -- 1. ULTRA PREMIUM LOADING SCREEN
+    -- 1. CINEMATIC INTRO ANIMATION
     -- ==========================================
-    local loadingFrame = Instance.new("Frame")
-    loadingFrame.Size = UDim2.new(0, 320, 0, 160)
-    loadingFrame.Position = UDim2.new(0.5, -160, 0.5, -80)
-    loadingFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
-    loadingFrame.BackgroundTransparency = 1
-    loadingFrame.Parent = sgui
+    local introFrame = Instance.new("Frame", sgui)
+    introFrame.Size = UDim2.new(1, 0, 1, 0)
+    introFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 10) -- Pitch Black
+    introFrame.BackgroundTransparency = 0
+    introFrame.ZIndex = 999
     
-    Instance.new("UICorner", loadingFrame).CornerRadius = UDim.new(0, 14)
-    local lStroke = Instance.new("UIStroke", loadingFrame)
-    lStroke.Color = self.CurrentThemeColor
-    lStroke.Thickness = 0
-    lStroke.Transparency = 1
-    
-    local loadTitle = Instance.new("TextLabel", loadingFrame)
-    loadTitle.Size = UDim2.new(1, 0, 0, 40)
-    loadTitle.Position = UDim2.new(0, 0, 0, 30)
-    loadTitle.Text = self.Title
-    loadTitle.Font = Enum.Font.GothamBlack
-    loadTitle.TextSize = 24
-    loadTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    loadTitle.BackgroundTransparency = 1
-    loadTitle.TextTransparency = 1
-    
-    local barBackground = Instance.new("Frame", loadingFrame)
-    barBackground.Size = UDim2.new(0, 260, 0, 4)
-    barBackground.Position = UDim2.new(0.5, -130, 0, 95)
-    barBackground.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-    barBackground.BackgroundTransparency = 1
-    Instance.new("UICorner", barBackground).CornerRadius = UDim.new(1, 0)
-    
-    local barProgress = Instance.new("Frame", barBackground)
-    barProgress.Size = UDim2.new(0, 0, 1, 0)
-    barProgress.BackgroundColor3 = self.CurrentThemeColor
-    Instance.new("UICorner", barProgress).CornerRadius = UDim.new(1, 0)
-    
-    local loadStatus = Instance.new("TextLabel", loadingFrame)
-    loadStatus.Size = UDim2.new(1, 0, 0, 20)
-    loadStatus.Position = UDim2.new(0, 0, 0, 110)
-    loadStatus.Text = "Initializing Core Systems..."
-    loadStatus.Font = Enum.Font.GothamMedium
-    loadStatus.TextSize = 12
-    loadStatus.TextColor3 = Color3.fromRGB(150, 150, 150)
-    loadStatus.BackgroundTransparency = 1
-    loadStatus.TextTransparency = 1
+    local introLogo
+    if self.LogoId ~= "" then
+        introLogo = Instance.new("ImageLabel", introFrame)
+        introLogo.Size = UDim2.new(0, 80, 0, 80)
+        introLogo.Position = UDim2.new(0.5, -40, 0.5, -80)
+        introLogo.BackgroundTransparency = 1
+        introLogo.Image = self.LogoId
+        introLogo.ImageTransparency = 1
+    end
 
-    -- Fade In Loading
-    TweenService:Create(loadingFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
-    TweenService:Create(lStroke, TweenInfo.new(0.5), {Thickness = 1.5, Transparency = 0}):Play()
-    TweenService:Create(loadTitle, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-    TweenService:Create(loadStatus, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-    TweenService:Create(barBackground, TweenInfo.new(0.5), {BackgroundTransparency = 0}):Play()
-    task.wait(0.6)
+    local introText = Instance.new("TextLabel", introFrame)
+    introText.Size = UDim2.new(1, 0, 0, 50)
+    introText.Position = UDim2.new(0, 0, 0.5, introLogo and 10 or -25)
+    introText.Font = Enum.Font.GothamBlack
+    introText.TextSize = 35
+    introText.TextColor3 = self.CurrentThemeColor
+    introText.BackgroundTransparency = 1
+    introText.TextTransparency = 1
+    introText.Text = "NomNom | Library"
+
+    local subText = Instance.new("TextLabel", introFrame)
+    subText.Size = UDim2.new(1, 0, 0, 30)
+    subText.Position = UDim2.new(0, 0, 0.5, introLogo and 60 or 25)
+    subText.Font = Enum.Font.GothamMedium
+    subText.TextSize = 16
+    subText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    subText.BackgroundTransparency = 1
+    subText.TextTransparency = 1
+    subText.Text = "Thank you for using the NomNom library, 🫪"
+
+    -- Animasi Intro
+    if introLogo then
+        TweenService:Create(introLogo, TweenInfo.new(1), {ImageTransparency = 0}):Play()
+    end
+    TweenService:Create(introText, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
+    task.wait(1.5)
+    if introLogo then
+        TweenService:Create(introLogo, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+    end
+    TweenService:Create(introText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+    task.wait(0.5)
     
-    TweenService:Create(barProgress, TweenInfo.new(0.8, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0.3, 0, 1, 0)}):Play()
+    TweenService:Create(subText, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
+    task.wait(2)
+    TweenService:Create(subText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+    TweenService:Create(introFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
     task.wait(0.8)
-    loadStatus.Text = "Loading Tab Systems..."
-    TweenService:Create(barProgress, TweenInfo.new(1.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0.75, 0, 1, 0)}):Play()
-    task.wait(1.3)
-    loadStatus.Text = "Welcome to the Future."
-    TweenService:Create(barProgress, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 1, 0)}):Play()
-    task.wait(0.6)
-    
-    TweenService:Create(loadingFrame, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(lStroke, TweenInfo.new(0.4), {Transparency = 1}):Play()
-    TweenService:Create(loadTitle, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-    TweenService:Create(loadStatus, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-    TweenService:Create(barProgress, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(barBackground, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-    task.wait(0.4)
-    loadingFrame:Destroy()
+    introFrame:Destroy()
 
     -- ==========================================
-    -- 2. MAIN PREMIUM FRAME & DYNAMIC ISLAND
+    -- 2. MAIN FRAME & DYNAMIC ISLAND
     -- ==========================================
     local mainFrame = Instance.new("Frame")
     mainFrame.Size = UDim2.new(0, 0, 0, 0)
     mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14) -- Dark Titanium Background
     mainFrame.BackgroundTransparency = 0.05
     mainFrame.ClipsDescendants = true
     mainFrame.Parent = sgui
@@ -172,19 +153,19 @@ function NomNom.new(config)
     
     Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
     local mainStroke = Instance.new("UIStroke", mainFrame)
-    mainStroke.Color = Color3.fromRGB(40, 40, 45)
+    mainStroke.Color = Color3.fromRGB(35, 35, 40)
     mainStroke.Thickness = 1.5
     
     TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 600, 0, 400),
-        Position = UDim2.new(0.5, -300, 0.5, -200)
+        Size = UDim2.new(0, 600, 0, 420),
+        Position = UDim2.new(0.5, -300, 0.5, -210)
     }):Play()
     
     local island = Instance.new("TextButton")
     island.Text = ""
     island.Size = UDim2.new(0, 200, 0, 35)
     island.Position = UDim2.new(0.5, -100, 0, 20)
-    island.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+    island.BackgroundColor3 = Color3.fromRGB(8, 8, 10)
     island.Visible = false
     island.AutoButtonColor = false
     island.Parent = sgui
@@ -228,10 +209,20 @@ function NomNom.new(config)
     header.Size = UDim2.new(1, 0, 0, 45)
     header.BackgroundTransparency = 1
     MakeDraggable(header, mainFrame)
+
+    local titleOffsetX = 20
+    if self.LogoId ~= "" then
+        local headerLogo = Instance.new("ImageLabel", header)
+        headerLogo.Size = UDim2.new(0, 25, 0, 25)
+        headerLogo.Position = UDim2.new(0, 15, 0.5, -12.5)
+        headerLogo.BackgroundTransparency = 1
+        headerLogo.Image = self.LogoId
+        titleOffsetX = 50
+    end
     
     local titleLabel = Instance.new("TextLabel", header)
     titleLabel.Size = UDim2.new(0, 300, 1, 0)
-    titleLabel.Position = UDim2.new(0, 20, 0, 0)
+    titleLabel.Position = UDim2.new(0, titleOffsetX, 0, 0)
     titleLabel.Text = self.Title
     titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     titleLabel.Font = Enum.Font.GothamBlack
@@ -304,7 +295,6 @@ function NomNom.new(config)
             mainFrame.Visible = true
             mainFrame.BackgroundTransparency = 0.05
             
-            -- Show mainframe elements safely
             for _, v in pairs(mainFrame:GetChildren()) do
                 if v:IsA("GuiObject") then 
                     v.Visible = true 
@@ -312,16 +302,37 @@ function NomNom.new(config)
             end
             
             TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 600, 0, 400),
-                Position = UDim2.new(0.5, -300, 0.5, -200)
+                Size = UDim2.new(0, 600, 0, 420),
+                Position = UDim2.new(0.5, -300, 0.5, -210)
             }):Play()
         end
     end
     
     closeBtn.MouseButton1Click:Connect(toggleUI)
     island.MouseButton1Click:Connect(toggleUI)
+
+    -- Auto Notification System (Tiap 3 Menit = 180 Detik)
+    task.spawn(function()
+        while task.wait(180) do
+            if self.IsOpen then
+                self:Notify({
+                    Title = "NomNom UI " .. (self.LogoId ~= "" and "🫪" or "✨"),
+                    Text = "Do you like the NomNom UI? Let us know!",
+                    Duration = 5
+                })
+            end
+        end
+    end)
     
     return self
+end
+
+-- Fungsi Bantuan untuk Ikon/Simbol
+local function formatTextWithIcon(name, iconId)
+    if iconId and not string.find(iconId, "rbxassetid://") then
+        return iconId .. " " .. name -- Gabungkan simbol teks ke nama
+    end
+    return name
 end
 
 -- ================= FITUR NOTIFIKASI =================
@@ -332,7 +343,7 @@ function NomNom:Notify(config)
 
     local notifFrame = Instance.new("Frame", self.NotifContainer)
     notifFrame.Size = UDim2.new(1, 0, 0, 70)
-    notifFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 25)
+    notifFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
     notifFrame.BackgroundTransparency = 1
     Instance.new("UICorner", notifFrame).CornerRadius = UDim.new(0, 8)
     
@@ -340,6 +351,7 @@ function NomNom:Notify(config)
     stroke.Color = self.CurrentThemeColor
     stroke.Thickness = 1.5
     stroke.Transparency = 1
+    table.insert(self.ThemeObjects, {Obj = stroke, Prop = "Color"})
     
     local titleLbl = Instance.new("TextLabel", notifFrame)
     titleLbl.Size = UDim2.new(1, -20, 0, 25)
@@ -351,6 +363,7 @@ function NomNom:Notify(config)
     titleLbl.TextXAlignment = Enum.TextXAlignment.Left
     titleLbl.BackgroundTransparency = 1
     titleLbl.TextTransparency = 1
+    table.insert(self.ThemeObjects, {Obj = titleLbl, Prop = "TextColor3"})
 
     local descLbl = Instance.new("TextLabel", notifFrame)
     descLbl.Size = UDim2.new(1, -20, 0, 35)
@@ -365,7 +378,6 @@ function NomNom:Notify(config)
     descLbl.BackgroundTransparency = 1
     descLbl.TextTransparency = 1
 
-    -- Animate In
     TweenService:Create(notifFrame, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
     TweenService:Create(stroke, TweenInfo.new(0.4), {Transparency = 0}):Play()
     TweenService:Create(titleLbl, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
@@ -393,24 +405,42 @@ function NomNom:ChangeTheme(newColor)
 end
 
 -- ================= FITUR TAB SYSTEM =================
-function NomNom:CreateTab(name)
+function NomNom:CreateTab(name, iconId)
+    name = formatTextWithIcon(name, iconId)
+    
     local tabBtn = Instance.new("TextButton", self.TabBar)
     tabBtn.Size = UDim2.new(0, 100, 1, 0)
-    tabBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 25)
-    tabBtn.Text = name
-    tabBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
-    tabBtn.Font = Enum.Font.GothamBold
-    tabBtn.TextSize = 13
+    tabBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+    tabBtn.Text = ""
     tabBtn.AutoButtonColor = false
     Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0, 6)
     
     local stroke = Instance.new("UIStroke", tabBtn)
-    stroke.Color = Color3.fromRGB(40, 40, 45)
+    stroke.Color = Color3.fromRGB(35, 35, 40)
     stroke.Thickness = 1
 
-    -- Mengatur ukuran tombol dinamis berdasarkan teks
+    local contentOffset = 0
+    if iconId and string.find(iconId, "rbxassetid://") then
+        local img = Instance.new("ImageLabel", tabBtn)
+        img.Size = UDim2.new(0, 16, 0, 16)
+        img.Position = UDim2.new(0, 10, 0.5, -8)
+        img.BackgroundTransparency = 1
+        img.Image = iconId
+        contentOffset = 25
+    end
+
+    local tabTxt = Instance.new("TextLabel", tabBtn)
+    tabTxt.Size = UDim2.new(1, -contentOffset - 10, 1, 0)
+    tabTxt.Position = UDim2.new(0, contentOffset > 0 and contentOffset or 10, 0, 0)
+    tabTxt.BackgroundTransparency = 1
+    tabTxt.Text = name
+    tabTxt.TextColor3 = Color3.fromRGB(150, 150, 150)
+    tabTxt.Font = Enum.Font.GothamBold
+    tabTxt.TextSize = 13
+    tabTxt.TextXAlignment = contentOffset > 0 and Enum.TextXAlignment.Left or Enum.TextXAlignment.Center
+
     local textBounds = game:GetService("TextService"):GetTextSize(name, 13, Enum.Font.GothamBold, Vector2.new(999, 35))
-    tabBtn.Size = UDim2.new(0, textBounds.X + 30, 1, 0)
+    tabBtn.Size = UDim2.new(0, textBounds.X + contentOffset + 25, 1, 0)
 
     local container = Instance.new("ScrollingFrame", self.TabContentArea)
     container.Size = UDim2.new(1, 0, 1, 0)
@@ -429,61 +459,72 @@ function NomNom:CreateTab(name)
 
     local function ActivateTab()
         if self.CurrentTab then
-            TweenService:Create(self.CurrentTab.Btn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(22, 22, 25), TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
-            TweenService:Create(self.CurrentTab.Stroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(40, 40, 45)}):Play()
+            TweenService:Create(self.CurrentTab.Btn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(18, 18, 22)}):Play()
+            TweenService:Create(self.CurrentTab.Txt, TweenInfo.new(0.3), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
+            TweenService:Create(self.CurrentTab.Stroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(35, 35, 40)}):Play()
             self.CurrentTab.Container.Visible = false
         end
         
-        self.CurrentTab = {Btn = tabBtn, Stroke = stroke, Container = container}
-        TweenService:Create(tabBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(35, 35, 40), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+        self.CurrentTab = {Btn = tabBtn, Txt = tabTxt, Stroke = stroke, Container = container}
+        TweenService:Create(tabBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(28, 28, 32)}):Play()
+        TweenService:Create(tabTxt, TweenInfo.new(0.3), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
         TweenService:Create(stroke, TweenInfo.new(0.3), {Color = self.CurrentThemeColor}):Play()
         container.Visible = true
     end
 
     tabBtn.MouseButton1Click:Connect(ActivateTab)
     
-    if #self.TabBar:GetChildren() == 2 then -- 1 karena UIListLayout
+    if #self.TabBar:GetChildren() == 2 then
         ActivateTab()
     end
 
-    local newTab = setmetatable({
-        Container = container,
-        Library = self
-    }, TabUI)
-
-    return newTab
+    return setmetatable({Container = container, Library = self}, TabUI)
 end
 
 -- ================= KOMPONEN UI DI DALAM TAB =================
 
-function TabUI:CreateButton(name, callback)
+function TabUI:CreateButton(name, callback, iconId)
+    name = formatTextWithIcon(name, iconId)
+    
     local btn = Instance.new("TextButton", self.Container)
     btn.Size = UDim2.new(1, 0, 0, 45)
-    btn.BackgroundColor3 = Color3.fromRGB(22, 22, 25)
-    btn.Text = "   " .. name
-    btn.TextColor3 = Color3.fromRGB(240, 240, 240)
-    btn.Font = Enum.Font.GothamMedium
-    btn.TextSize = 14
-    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+    btn.Text = ""
     btn.AutoButtonColor = false
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
     
-    local titleLbl = Instance.new("TextLabel", btn)
-    titleLbl.Name = "TitleLabel"
-    titleLbl.Text = name
-    titleLbl.Visible = false
-
     local stroke = Instance.new("UIStroke", btn)
-    stroke.Color = Color3.fromRGB(40, 40, 45)
+    stroke.Color = Color3.fromRGB(35, 35, 40)
     stroke.Thickness = 1
     
+    local contentOffset = 15
+    if iconId and string.find(iconId, "rbxassetid://") then
+        local img = Instance.new("ImageLabel", btn)
+        img.Size = UDim2.new(0, 20, 0, 20)
+        img.Position = UDim2.new(0, 15, 0.5, -10)
+        img.BackgroundTransparency = 1
+        img.Image = iconId
+        contentOffset = 45
+    end
+
+    local titleLbl = Instance.new("TextLabel", btn)
+    titleLbl.Name = "TitleLabel"
+    titleLbl.Size = UDim2.new(1, -contentOffset - 10, 1, 0)
+    titleLbl.Position = UDim2.new(0, contentOffset, 0, 0)
+    titleLbl.Text = name
+    titleLbl.TextColor3 = Color3.fromRGB(240, 240, 240)
+    titleLbl.Font = Enum.Font.GothamMedium
+    titleLbl.TextSize = 14
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+    titleLbl.BackgroundTransparency = 1
+    
     btn.MouseEnter:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(35, 35, 40)}):Play()
+        TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(28, 28, 32)}):Play()
         TweenService:Create(stroke, TweenInfo.new(0.3), {Color = self.Library.CurrentThemeColor}):Play()
     end)
     btn.MouseLeave:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(22, 22, 25)}):Play()
-        TweenService:Create(stroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(40, 40, 45)}):Play()
+        TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(18, 18, 22)}):Play()
+        TweenService:Create(stroke, TweenInfo.new(0.3), {Color = Color3.fromRGB(35, 35, 40)}):Play()
     end)
     btn.MouseButton1Down:Connect(function()
         TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, -4, 0, 41), Position = UDim2.new(0, 2, 0, 2)}):Play()
@@ -494,20 +535,32 @@ function TabUI:CreateButton(name, callback)
     end)
 end
 
-function TabUI:CreateToggle(name, default, callback)
+function TabUI:CreateToggle(name, default, callback, iconId)
+    name = formatTextWithIcon(name, iconId)
     local state = default or false
+    
     local tf = Instance.new("Frame", self.Container)
     tf.Size = UDim2.new(1, 0, 0, 45)
-    tf.BackgroundColor3 = Color3.fromRGB(22, 22, 25)
+    tf.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
     Instance.new("UICorner", tf).CornerRadius = UDim.new(0, 8)
     
     local stroke = Instance.new("UIStroke", tf)
-    stroke.Color = Color3.fromRGB(40, 40, 45)
+    stroke.Color = Color3.fromRGB(35, 35, 40)
     
+    local contentOffset = 15
+    if iconId and string.find(iconId, "rbxassetid://") then
+        local img = Instance.new("ImageLabel", tf)
+        img.Size = UDim2.new(0, 20, 0, 20)
+        img.Position = UDim2.new(0, 15, 0.5, -10)
+        img.BackgroundTransparency = 1
+        img.Image = iconId
+        contentOffset = 45
+    end
+
     local label = Instance.new("TextLabel", tf)
     label.Name = "TitleLabel"
-    label.Size = UDim2.new(1, -60, 1, 0)
-    label.Position = UDim2.new(0, 15, 0, 0)
+    label.Size = UDim2.new(1, -contentOffset - 60, 1, 0)
+    label.Position = UDim2.new(0, contentOffset, 0, 0)
     label.Text = name
     label.TextColor3 = Color3.fromRGB(240, 240, 240)
     label.Font = Enum.Font.GothamMedium
@@ -518,7 +571,7 @@ function TabUI:CreateToggle(name, default, callback)
     local switchBG = Instance.new("TextButton", tf)
     switchBG.Size = UDim2.new(0, 40, 0, 22)
     switchBG.Position = UDim2.new(1, -55, 0.5, -11)
-    switchBG.BackgroundColor3 = state and self.Library.CurrentThemeColor or Color3.fromRGB(50, 50, 55)
+    switchBG.BackgroundColor3 = state and self.Library.CurrentThemeColor or Color3.fromRGB(40, 40, 45)
     switchBG.Text = ""
     switchBG.AutoButtonColor = false
     Instance.new("UICorner", switchBG).CornerRadius = UDim.new(1, 0)
@@ -532,7 +585,7 @@ function TabUI:CreateToggle(name, default, callback)
     
     switchBG.MouseButton1Click:Connect(function()
         state = not state
-        local targetColor = state and self.Library.CurrentThemeColor or Color3.fromRGB(50, 50, 55)
+        local targetColor = state and self.Library.CurrentThemeColor or Color3.fromRGB(40, 40, 45)
         local targetPos = state and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)
         
         TweenService:Create(switchBG, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = targetColor}):Play()
@@ -541,21 +594,32 @@ function TabUI:CreateToggle(name, default, callback)
     end)
 end
 
-function TabUI:CreateSlider(name, min, max, default, callback)
+function TabUI:CreateSlider(name, min, max, default, callback, iconId)
+    name = formatTextWithIcon(name, iconId)
     local sliderVal = default or min
     
     local sf = Instance.new("Frame", self.Container)
     sf.Size = UDim2.new(1, 0, 0, 60)
-    sf.BackgroundColor3 = Color3.fromRGB(22, 22, 25)
+    sf.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
     Instance.new("UICorner", sf).CornerRadius = UDim.new(0, 8)
     
     local stroke = Instance.new("UIStroke", sf)
-    stroke.Color = Color3.fromRGB(40, 40, 45)
+    stroke.Color = Color3.fromRGB(35, 35, 40)
     
+    local contentOffset = 15
+    if iconId and string.find(iconId, "rbxassetid://") then
+        local img = Instance.new("ImageLabel", sf)
+        img.Size = UDim2.new(0, 16, 0, 16)
+        img.Position = UDim2.new(0, 15, 0, 9)
+        img.BackgroundTransparency = 1
+        img.Image = iconId
+        contentOffset = 40
+    end
+
     local label = Instance.new("TextLabel", sf)
     label.Name = "TitleLabel"
-    label.Size = UDim2.new(1, -20, 0, 25)
-    label.Position = UDim2.new(0, 15, 0, 5)
+    label.Size = UDim2.new(1, -contentOffset - 20, 0, 25)
+    label.Position = UDim2.new(0, contentOffset, 0, 5)
     label.Text = name
     label.TextColor3 = Color3.fromRGB(240, 240, 240)
     label.Font = Enum.Font.GothamMedium
@@ -577,7 +641,7 @@ function TabUI:CreateSlider(name, min, max, default, callback)
     local sliderBG = Instance.new("TextButton", sf)
     sliderBG.Size = UDim2.new(1, -30, 0, 6)
     sliderBG.Position = UDim2.new(0, 15, 0, 40)
-    sliderBG.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    sliderBG.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
     sliderBG.Text = ""
     sliderBG.AutoButtonColor = false
     Instance.new("UICorner", sliderBG).CornerRadius = UDim.new(1, 0)
@@ -596,11 +660,9 @@ function TabUI:CreateSlider(name, min, max, default, callback)
     Instance.new("UICorner", sliderKnob).CornerRadius = UDim.new(1, 0)
     
     local dragging = false
-    
     local function updateSlider(input)
         local pos = math.clamp((input.Position.X - sliderBG.AbsolutePosition.X) / sliderBG.AbsoluteSize.X, 0, 1)
         local value = math.floor(min + ((max - min) * pos))
-        
         valLabel.Text = tostring(value)
         TweenService:Create(sliderFill, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(pos, 0, 1, 0)}):Play()
         callback(value)
@@ -628,15 +690,114 @@ function TabUI:CreateSlider(name, min, max, default, callback)
     end)
 end
 
-function TabUI:CreateLabel(text)
+function TabUI:CreateColorPicker(name, callback, iconId)
+    name = formatTextWithIcon(name, iconId)
+    
+    local cp = Instance.new("Frame", self.Container)
+    cp.Size = UDim2.new(1, 0, 0, 60)
+    cp.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+    Instance.new("UICorner", cp).CornerRadius = UDim.new(0, 8)
+    
+    local stroke = Instance.new("UIStroke", cp)
+    stroke.Color = Color3.fromRGB(35, 35, 40)
+    
+    local contentOffset = 15
+    if iconId and string.find(iconId, "rbxassetid://") then
+        local img = Instance.new("ImageLabel", cp)
+        img.Size = UDim2.new(0, 16, 0, 16)
+        img.Position = UDim2.new(0, 15, 0, 9)
+        img.BackgroundTransparency = 1
+        img.Image = iconId
+        contentOffset = 40
+    end
+
+    local label = Instance.new("TextLabel", cp)
+    label.Name = "TitleLabel"
+    label.Size = UDim2.new(1, -contentOffset - 20, 0, 25)
+    label.Position = UDim2.new(0, contentOffset, 0, 5)
+    label.Text = name
+    label.TextColor3 = Color3.fromRGB(240, 240, 240)
+    label.Font = Enum.Font.GothamMedium
+    label.TextSize = 14
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.BackgroundTransparency = 1
+    
+    -- Rainbow Hue Slider
+    local hueBG = Instance.new("TextButton", cp)
+    hueBG.Size = UDim2.new(1, -30, 0, 8)
+    hueBG.Position = UDim2.new(0, 15, 0, 40)
+    hueBG.Text = ""
+    hueBG.AutoButtonColor = false
+    Instance.new("UICorner", hueBG).CornerRadius = UDim.new(1, 0)
+    
+    local hueGradient = Instance.new("UIGradient", hueBG)
+    hueGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+        ColorSequenceKeypoint.new(0.16, Color3.fromRGB(255, 255, 0)),
+        ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+        ColorSequenceKeypoint.new(0.66, Color3.fromRGB(0, 0, 255)),
+        ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+    })
+
+    local knob = Instance.new("Frame", hueBG)
+    knob.Size = UDim2.new(0, 14, 0, 14)
+    knob.Position = UDim2.new(0, 0, 0.5, -7)
+    knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
+    local knobStroke = Instance.new("UIStroke", knob)
+    knobStroke.Color = Color3.fromRGB(0,0,0)
+
+    local dragging = false
+    local function updateColor(input)
+        local pos = math.clamp((input.Position.X - hueBG.AbsolutePosition.X) / hueBG.AbsoluteSize.X, 0, 1)
+        TweenService:Create(knob, TweenInfo.new(0.1), {Position = UDim2.new(pos, -7, 0.5, -7)}):Play()
+        local newColor = Color3.fromHSV(pos, 1, 1)
+        
+        -- Otomatis ganti tema Library
+        self.Library:ChangeTheme(newColor)
+        if callback then callback(newColor) end
+    end
+    
+    hueBG.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            updateColor(input)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateColor(input)
+        end
+    end)
+end
+
+function TabUI:CreateLabel(text, iconId)
+    text = formatTextWithIcon(text, iconId)
     local lblFrame = Instance.new("Frame", self.Container)
     lblFrame.Size = UDim2.new(1, 0, 0, 30)
     lblFrame.BackgroundTransparency = 1
     
+    local contentOffset = 10
+    if iconId and string.find(iconId, "rbxassetid://") then
+        local img = Instance.new("ImageLabel", lblFrame)
+        img.Size = UDim2.new(0, 16, 0, 16)
+        img.Position = UDim2.new(0, 10, 0.5, -8)
+        img.BackgroundTransparency = 1
+        img.Image = iconId
+        contentOffset = 35
+    end
+
     local label = Instance.new("TextLabel", lblFrame)
     label.Name = "TitleLabel"
-    label.Size = UDim2.new(1, -20, 1, 0)
-    label.Position = UDim2.new(0, 10, 0, 0)
+    label.Size = UDim2.new(1, -contentOffset - 10, 1, 0)
+    label.Position = UDim2.new(0, contentOffset, 0, 0)
     label.Text = text
     label.TextColor3 = Color3.fromRGB(200, 200, 200)
     label.Font = Enum.Font.GothamMedium
@@ -645,19 +806,30 @@ function TabUI:CreateLabel(text)
     label.BackgroundTransparency = 1
 end
 
-function TabUI:CreateTextBox(name, placeholder, callback)
+function TabUI:CreateTextBox(name, placeholder, callback, iconId)
+    name = formatTextWithIcon(name, iconId)
     local boxFrame = Instance.new("Frame", self.Container)
     boxFrame.Size = UDim2.new(1, 0, 0, 50)
-    boxFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 25)
+    boxFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
     Instance.new("UICorner", boxFrame).CornerRadius = UDim.new(0, 8)
     
     local stroke = Instance.new("UIStroke", boxFrame)
-    stroke.Color = Color3.fromRGB(40, 40, 45)
+    stroke.Color = Color3.fromRGB(35, 35, 40)
     
+    local contentOffset = 15
+    if iconId and string.find(iconId, "rbxassetid://") then
+        local img = Instance.new("ImageLabel", boxFrame)
+        img.Size = UDim2.new(0, 16, 0, 16)
+        img.Position = UDim2.new(0, 15, 0, 5)
+        img.BackgroundTransparency = 1
+        img.Image = iconId
+        contentOffset = 40
+    end
+
     local label = Instance.new("TextLabel", boxFrame)
     label.Name = "TitleLabel"
-    label.Size = UDim2.new(1, -20, 0, 20)
-    label.Position = UDim2.new(0, 15, 0, 5)
+    label.Size = UDim2.new(1, -contentOffset - 20, 0, 20)
+    label.Position = UDim2.new(0, contentOffset, 0, 5)
     label.Text = name
     label.TextColor3 = Color3.fromRGB(240, 240, 240)
     label.Font = Enum.Font.GothamMedium
@@ -683,21 +855,32 @@ function TabUI:CreateTextBox(name, placeholder, callback)
     end)
 end
 
-function TabUI:CreateProgressBar(name, initialValue, max)
+function TabUI:CreateProgressBar(name, initialValue, max, iconId)
+    name = formatTextWithIcon(name, iconId)
     local pBarVal = initialValue or 0
     
     local pf = Instance.new("Frame", self.Container)
     pf.Size = UDim2.new(1, 0, 0, 50)
-    pf.BackgroundColor3 = Color3.fromRGB(22, 22, 25)
+    pf.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
     Instance.new("UICorner", pf).CornerRadius = UDim.new(0, 8)
     
     local stroke = Instance.new("UIStroke", pf)
-    stroke.Color = Color3.fromRGB(40, 40, 45)
+    stroke.Color = Color3.fromRGB(35, 35, 40)
     
+    local contentOffset = 15
+    if iconId and string.find(iconId, "rbxassetid://") then
+        local img = Instance.new("ImageLabel", pf)
+        img.Size = UDim2.new(0, 16, 0, 16)
+        img.Position = UDim2.new(0, 15, 0, 5)
+        img.BackgroundTransparency = 1
+        img.Image = iconId
+        contentOffset = 40
+    end
+
     local label = Instance.new("TextLabel", pf)
     label.Name = "TitleLabel"
-    label.Size = UDim2.new(1, -20, 0, 20)
-    label.Position = UDim2.new(0, 15, 0, 5)
+    label.Size = UDim2.new(1, -contentOffset - 20, 0, 20)
+    label.Position = UDim2.new(0, contentOffset, 0, 5)
     label.Text = name
     label.TextColor3 = Color3.fromRGB(240, 240, 240)
     label.Font = Enum.Font.GothamMedium
@@ -708,7 +891,7 @@ function TabUI:CreateProgressBar(name, initialValue, max)
     local barBG = Instance.new("Frame", pf)
     barBG.Size = UDim2.new(1, -30, 0, 6)
     barBG.Position = UDim2.new(0, 15, 0, 32)
-    barBG.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    barBG.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
     Instance.new("UICorner", barBG).CornerRadius = UDim.new(1, 0)
     
     local barFill = Instance.new("Frame", barBG)
@@ -727,19 +910,30 @@ function TabUI:CreateProgressBar(name, initialValue, max)
     return PBarObj
 end
 
-function TabUI:CreateStatusIndicator(name, initialStatus, color)
+function TabUI:CreateStatusIndicator(name, initialStatus, color, iconId)
+    name = formatTextWithIcon(name, iconId)
     local sf = Instance.new("Frame", self.Container)
     sf.Size = UDim2.new(1, 0, 0, 40)
-    sf.BackgroundColor3 = Color3.fromRGB(22, 22, 25)
+    sf.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
     Instance.new("UICorner", sf).CornerRadius = UDim.new(0, 8)
     
     local stroke = Instance.new("UIStroke", sf)
-    stroke.Color = Color3.fromRGB(40, 40, 45)
+    stroke.Color = Color3.fromRGB(35, 35, 40)
     
+    local contentOffset = 15
+    if iconId and string.find(iconId, "rbxassetid://") then
+        local img = Instance.new("ImageLabel", sf)
+        img.Size = UDim2.new(0, 16, 0, 16)
+        img.Position = UDim2.new(0, 15, 0.5, -8)
+        img.BackgroundTransparency = 1
+        img.Image = iconId
+        contentOffset = 40
+    end
+
     local label = Instance.new("TextLabel", sf)
     label.Name = "TitleLabel"
-    label.Size = UDim2.new(1, -120, 1, 0)
-    label.Position = UDim2.new(0, 15, 0, 0)
+    label.Size = UDim2.new(1, -contentOffset - 120, 1, 0)
+    label.Position = UDim2.new(0, contentOffset, 0, 0)
     label.Text = name
     label.TextColor3 = Color3.fromRGB(240, 240, 240)
     label.Font = Enum.Font.GothamMedium
@@ -776,7 +970,7 @@ end
 function TabUI:CreateSearchBar(placeholder)
     local searchFrame = Instance.new("Frame", self.Container)
     searchFrame.Size = UDim2.new(1, 0, 0, 40)
-    searchFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 20)
+    searchFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
     Instance.new("UICorner", searchFrame).CornerRadius = UDim.new(0, 8)
     
     local stroke = Instance.new("UIStroke", searchFrame)
@@ -797,7 +991,6 @@ function TabUI:CreateSearchBar(placeholder)
     
     searchBox:GetPropertyChangedSignal("Text"):Connect(function()
         local searchText = string.lower(searchBox.Text)
-        
         for _, item in pairs(self.Container:GetChildren()) do
             if item:IsA("Frame") or item:IsA("TextButton") then
                 if item ~= searchFrame then
