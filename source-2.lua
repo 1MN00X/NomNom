@@ -1,6 +1,5 @@
--- [[ NomNom UI Library V3: Titanium Edition + Mega Update ]]
--- Fitur Asli: Draggable, Live Theme, Dynamic Island, Smooth Sliders, Tabs, Notifs
--- Fitur Baru: Cinematic Intro, Custom Logo, Icon/Symbol Support, Custom Color Picker, Auto-Notify, Titanium Purple Theme
+-- [[ NomNom UI Library V3.1: Titanium Edition (Bug Fixes) ]]
+-- Perbaikan: Intro Animasi sekarang muncul dengan benar, Live Color Picker lancar tanpa lag.
 
 local NomNom = {}
 NomNom.__index = NomNom
@@ -10,7 +9,6 @@ TabUI.__index = TabUI
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 
@@ -55,20 +53,21 @@ end
 function NomNom.new(config)
     local self = setmetatable({}, NomNom)
     
-    -- Konfigurasi Utama (Titanium Purple & Black Default)
     self.Title = config.Title or "NomNom Premium"
     self.LogoId = config.LogoId or ""
-    self.CurrentThemeColor = config.ThemeColor or Color3.fromRGB(150, 100, 255) -- Titanium Purple
+    self.CurrentThemeColor = config.ThemeColor or Color3.fromRGB(150, 100, 255)
     self.ThemeObjects = {} 
     
-    -- Inisialisasi ScreenGui
+    -- Tunggu agar UI Roblox siap
+    task.wait(0.2)
+    
     local sgui = Instance.new("ScreenGui")
     sgui.Name = "NomNom_V3_Titanium"
     sgui.ResetOnSpawn = false
+    sgui.IgnoreGuiInset = true -- Memastikan UI tidak terpotong bar atas
     sgui.Parent = CoreGui or Players.LocalPlayer:WaitForChild("PlayerGui")
     self.ScreenGui = sgui
 
-    -- Container Notifikasi
     local notifContainer = Instance.new("Frame", sgui)
     notifContainer.Name = "NotifContainer"
     notifContainer.Size = UDim2.new(0, 300, 1, 0)
@@ -82,11 +81,11 @@ function NomNom.new(config)
     self.NotifContainer = notifContainer
     
     -- ==========================================
-    -- 1. CINEMATIC INTRO ANIMATION
+    -- 1. CINEMATIC INTRO ANIMATION (FIXED)
     -- ==========================================
     local introFrame = Instance.new("Frame", sgui)
     introFrame.Size = UDim2.new(1, 0, 1, 0)
-    introFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 10) -- Pitch Black
+    introFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 10) 
     introFrame.BackgroundTransparency = 0
     introFrame.ZIndex = 999
     
@@ -98,6 +97,7 @@ function NomNom.new(config)
         introLogo.BackgroundTransparency = 1
         introLogo.Image = self.LogoId
         introLogo.ImageTransparency = 1
+        introLogo.ZIndex = 1000
     end
 
     local introText = Instance.new("TextLabel", introFrame)
@@ -109,6 +109,7 @@ function NomNom.new(config)
     introText.BackgroundTransparency = 1
     introText.TextTransparency = 1
     introText.Text = "NomNom | Library"
+    introText.ZIndex = 1000
 
     local subText = Instance.new("TextLabel", introFrame)
     subText.Size = UDim2.new(1, 0, 0, 30)
@@ -119,25 +120,32 @@ function NomNom.new(config)
     subText.BackgroundTransparency = 1
     subText.TextTransparency = 1
     subText.Text = "Thank you for using the NomNom library, 🫪"
+    subText.ZIndex = 1000
 
-    -- Animasi Intro
-    if introLogo then
-        TweenService:Create(introLogo, TweenInfo.new(1), {ImageTransparency = 0}):Play()
-    end
-    TweenService:Create(introText, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-    task.wait(1.5)
-    if introLogo then
-        TweenService:Create(introLogo, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
-    end
-    TweenService:Create(introText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-    task.wait(0.5)
-    
-    TweenService:Create(subText, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-    task.wait(2)
-    TweenService:Create(subText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-    TweenService:Create(introFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
-    task.wait(0.8)
-    introFrame:Destroy()
+    -- Menjalankan Intro secara terpisah agar tidak menahan skrip lain
+    task.spawn(function()
+        task.wait(0.5) -- Biarkan layar hitam sebentar agar dramatis & UI selesai dimuat
+        
+        if introLogo then
+            TweenService:Create(introLogo, TweenInfo.new(1), {ImageTransparency = 0}):Play()
+        end
+        TweenService:Create(introText, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
+        task.wait(1.5)
+        
+        if introLogo then
+            TweenService:Create(introLogo, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+        end
+        TweenService:Create(introText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        task.wait(0.5)
+        
+        TweenService:Create(subText, TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
+        task.wait(2)
+        
+        TweenService:Create(subText, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        TweenService:Create(introFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+        task.wait(0.8)
+        introFrame:Destroy()
+    end)
 
     -- ==========================================
     -- 2. MAIN FRAME & DYNAMIC ISLAND
@@ -145,7 +153,7 @@ function NomNom.new(config)
     local mainFrame = Instance.new("Frame")
     mainFrame.Size = UDim2.new(0, 0, 0, 0)
     mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14) -- Dark Titanium Background
+    mainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 14)
     mainFrame.BackgroundTransparency = 0.05
     mainFrame.ClipsDescendants = true
     mainFrame.Parent = sgui
@@ -156,10 +164,14 @@ function NomNom.new(config)
     mainStroke.Color = Color3.fromRGB(35, 35, 40)
     mainStroke.Thickness = 1.5
     
-    TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 600, 0, 420),
-        Position = UDim2.new(0.5, -300, 0.5, -210)
-    }):Play()
+    -- Mulai buka menu setelah Intro (kita atur muncul pelan-pelan)
+    task.spawn(function()
+        task.wait(4.5) -- Tunggu intro selesai
+        TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 600, 0, 420),
+            Position = UDim2.new(0.5, -300, 0.5, -210)
+        }):Play()
+    end)
     
     local island = Instance.new("TextButton")
     island.Text = ""
@@ -204,7 +216,6 @@ function NomNom.new(config)
     self.Island = island
     self.IsOpen = true
     
-    -- Header UI Utama
     local header = Instance.new("Frame", mainFrame)
     header.Size = UDim2.new(1, 0, 0, 45)
     header.BackgroundTransparency = 1
@@ -239,7 +250,6 @@ function NomNom.new(config)
     closeBtn.TextSize = 14
     closeBtn.BackgroundTransparency = 1
 
-    -- TAB SYSTEM CONTAINER
     local tabBar = Instance.new("ScrollingFrame", mainFrame)
     tabBar.Size = UDim2.new(1, -40, 0, 35)
     tabBar.Position = UDim2.new(0, 20, 0, 45)
@@ -289,7 +299,6 @@ function NomNom.new(config)
                 Size = UDim2.new(0, 200, 0, 35),
                 Position = UDim2.new(0.5, -100, 0, 20)
             }):Play()
-
         else
             island.Visible = false
             mainFrame.Visible = true
@@ -311,7 +320,6 @@ function NomNom.new(config)
     closeBtn.MouseButton1Click:Connect(toggleUI)
     island.MouseButton1Click:Connect(toggleUI)
 
-    -- Auto Notification System (Tiap 3 Menit = 180 Detik)
     task.spawn(function()
         while task.wait(180) do
             if self.IsOpen then
@@ -327,15 +335,13 @@ function NomNom.new(config)
     return self
 end
 
--- Fungsi Bantuan untuk Ikon/Simbol
 local function formatTextWithIcon(name, iconId)
     if iconId and not string.find(iconId, "rbxassetid://") then
-        return iconId .. " " .. name -- Gabungkan simbol teks ke nama
+        return iconId .. " " .. name 
     end
     return name
 end
 
--- ================= FITUR NOTIFIKASI =================
 function NomNom:Notify(config)
     local title = config.Title or "Notification"
     local text = config.Text or "This is a notification."
@@ -394,12 +400,13 @@ function NomNom:Notify(config)
     end)
 end
 
--- ================= FITUR LIVE THEME =================
+-- ================= FITUR LIVE THEME (FIXED) =================
 function NomNom:ChangeTheme(newColor)
     self.CurrentThemeColor = newColor
     for _, item in pairs(self.ThemeObjects) do
         if item.Obj and item.Obj.Parent then
-            TweenService:Create(item.Obj, TweenInfo.new(0.5), {[item.Prop] = newColor}):Play()
+            -- MENGGUNAKAN UPDATE INSTAN (Tanpa TweenService) UNTUK MENGHINDARI LAG SAAT DI-GESER!
+            item.Obj[item.Prop] = newColor
         end
     end
 end
@@ -482,7 +489,6 @@ function NomNom:CreateTab(name, iconId)
 end
 
 -- ================= KOMPONEN UI DI DALAM TAB =================
-
 function TabUI:CreateButton(name, callback, iconId)
     name = formatTextWithIcon(name, iconId)
     
@@ -722,7 +728,6 @@ function TabUI:CreateColorPicker(name, callback, iconId)
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.BackgroundTransparency = 1
     
-    -- Rainbow Hue Slider
     local hueBG = Instance.new("TextButton", cp)
     hueBG.Size = UDim2.new(1, -30, 0, 8)
     hueBG.Position = UDim2.new(0, 15, 0, 40)
@@ -752,10 +757,9 @@ function TabUI:CreateColorPicker(name, callback, iconId)
     local dragging = false
     local function updateColor(input)
         local pos = math.clamp((input.Position.X - hueBG.AbsolutePosition.X) / hueBG.AbsoluteSize.X, 0, 1)
-        TweenService:Create(knob, TweenInfo.new(0.1), {Position = UDim2.new(pos, -7, 0.5, -7)}):Play()
+        knob.Position = UDim2.new(pos, -7, 0.5, -7)
         local newColor = Color3.fromHSV(pos, 1, 1)
         
-        -- Otomatis ganti tema Library
         self.Library:ChangeTheme(newColor)
         if callback then callback(newColor) end
     end
