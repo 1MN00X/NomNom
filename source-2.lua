@@ -1,4 +1,4 @@
--- [[ NomNom UI Library V2: Ultra Premium Edition ]]
+-- [[ NomNom UI Library V2: Ultra Premium Edition (Fixed & Completed) ]]
 -- Batch 3: Auto Save, Multiple Config Profiles, Theme Creator, Responsive Layout, UI Scaling, Mobile Optimization
 
 local NomNom = {}
@@ -639,6 +639,41 @@ function Tab:CreateSection(name)
     return section
 end
 
+-- Make GUI draggable
+local function MakeDraggable(frame, dragHandle)
+    local dragging = false
+    local dragInput = nil
+    local dragStart = nil
+    local startPos = nil
+    
+    dragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    dragHandle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and dragInput then
+            local delta = dragInput.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
 -- ================= WINDOW CLASS =================
 local Window = {}
 Window.__index = Window
@@ -753,7 +788,7 @@ function Window.new(config)
     local header = Instance.new("Frame", mainFrame)
     header.Size = UDim2.new(1, 0, 0, headerHeight)
     header.BackgroundTransparency = 1
-    MakeDraggable(header, mainFrame)
+    MakeDraggable(mainFrame, header)
     
     local titleLabel = Instance.new("TextLabel", header)
     titleLabel.Size = UDim2.new(0, 300, 1, 0)
@@ -846,8 +881,7 @@ function Window.new(config)
             if self.IsOpen then
                 mainFrame.Size = UDim2.new(0, newWidth, 0, newHeight)
                 mainFrame.Position = UDim2.new(0.5, -newWidth/2, 0.5, -newHeight/2)
-            end
-            
+            end            
             if self.ScaleManager then
                 self.ScaleManager:Update()
             end
