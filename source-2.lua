@@ -1,6 +1,3 @@
--- [[ NomNom UI Library V3.1: Titanium Edition (Bug Fixes) ]]
--- Perbaikan: Intro Animasi sekarang muncul dengan benar, Live Color Picker lancar tanpa lag.
-
 local NomNom = {}
 NomNom.__index = NomNom
 
